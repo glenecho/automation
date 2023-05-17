@@ -83,3 +83,18 @@ public class KeycloakAuthCallback {
         keycloak.close();
     }
 }
+
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class ProtectedRouteController {
+
+    @Secured("ROLE_USER") // Restrict access to authenticated users with "ROLE_USER" authority
+    @GetMapping("/protected-route")
+    public String protectedRoute() {
+        // Handle the logic for the protected route
+        return "protected-page";
+    }
+}
