@@ -130,3 +130,66 @@ public class ProtectedRouteController {
         <version>15.0.2</version>
     </dependency>
 </dependencies>
+
+
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.token.TokenManager;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
+
+public class KeycloakClientLoginExample {
+
+    public static void main(String[] args) {
+        String keycloakBaseUrl = "https://your-keycloak-server";
+        String realmName = "your-realm";
+        String clientId = "your-client-id";
+        String clientSecret = "your-client-secret";
+        String username = "your-username";
+        String password = "your-password";
+
+        // Create a Keycloak client instance
+        Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl(keycloakBaseUrl)
+                .realm("master")
+                .clientId("admin-cli")
+                .username("admin")
+                .password("admin-password")
+                .build();
+
+        // Obtain the access token using the admin credentials
+        TokenManager tokenManager = keycloak.tokenManager();
+        String accessToken = tokenManager.getAccessTokenString();
+
+        // Get the realm resource for the desired realm
+        RealmResource realmResource = keycloak.realm(realmName);
+
+        // Create a new user representation
+        UserRepresentation user = new UserRepresentation();
+        user.setUsername(username);
+        user.setEnabled(true);
+
+        // Set the user's password
+        CredentialRepresentation credentials = new CredentialRepresentation();
+        credentials.setType(CredentialRepresentation.PASSWORD);
+        credentials.setValue(password);
+        user.setCredentials(List.of(credentials));
+
+        // Register the new user
+        realmResource.users().create(user);
+
+        // Perform client login using the new user's credentials
+        AccessTokenResponse tokenResponse = tokenManager
+                .grantToken(realmName, clientId, username, password);
+
+        // Obtain the access token from the response
+        String userAccessToken = tokenResponse.getToken();
+
+        // Use the obtained access token for further operations
+        // ...
+
+        // Close the Keycloak client
+        keycloak.close();
+    }
+}
