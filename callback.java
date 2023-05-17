@@ -98,3 +98,25 @@ public class ProtectedRouteController {
         return "protected-page";
     }
 }
+
+<dependencies>
+    <!-- Other dependencies -->
+    
+    <!-- Keycloak dependencies -->
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-core</artifactId>
+        <version>15.0.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-adapter-core</artifactId>
+        <version>15.0.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-servlet-adapter</artifactId>
+        <version>15.0.2</version>
+    </dependency>
+</dependencies>
+
