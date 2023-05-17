@@ -120,3 +120,13 @@ public class ProtectedRouteController {
     </dependency>
 </dependencies>
 
+<dependencies>
+    <!-- Other dependencies -->
+    
+    <!-- Keycloak client dependency -->
+    <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-admin-client</artifactId>
+        <version>15.0.2</version>
+    </dependency>
+</dependencies>
