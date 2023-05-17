@@ -34,3 +34,52 @@ public class AuthCallbackController {
         }
     }
 }
+
+import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.token.TokenManager;
+
+public class KeycloakAuthCallback {
+
+    public static void main(String[] args) {
+        String keycloakBaseUrl = "https://your-keycloak-server";
+        String realmName = "your-realm";
+        String clientId = "your-client-id";
+        String clientSecret = "your-client-secret";
+        String redirectUri = "https://example.com/auth/callback";
+        String authorizationCode = "authorization_code";
+
+        // Create a Keycloak client instance
+        Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl(keycloakBaseUrl)
+                .realm("master")
+                .clientId("admin-cli")
+                .username("admin")
+                .password("admin-password")
+                .grantType(OAuth2Constants.PASSWORD)
+                .build();
+
+        // Obtain the access token using the admin credentials
+        TokenManager tokenManager = keycloak.tokenManager();
+        String accessToken = tokenManager.getAccessTokenString();
+
+        // Get the realm resource
+        RealmResource realmResource = keycloak.realm(realmName);
+
+        // Exchange the authorization code for an API token
+        String apiToken = realmResource
+                .tokenManager()
+                .grantToken(clientId, clientSecret, authorizationCode, redirectUri);
+
+        // Use the obtained API token for API requests
+        // ...
+
+        // Log out when you no longer need the API token
+        realmResource.tokenManager().logout();
+
+        // Close the Keycloak client
+        keycloak.close();
+    }
+}
