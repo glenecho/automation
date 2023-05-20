@@ -193,3 +193,48 @@ public class KeycloakClientLoginExample {
         keycloak.close();
     }
 }
+
+If you want to use RedirectView in Spring Boot but prevent it from actually redirecting, you can achieve that by subclassing RedirectView and overriding the sendRedirect method. Here's an example:
+
+java
+Copy code
+import org.springframework.web.servlet.view.RedirectView;
+
+public class CustomRedirectView extends RedirectView {
+    
+    public CustomRedirectView(String url) {
+        super(url);
+    }
+    
+    @Override
+    protected void sendRedirect(
+            HttpServletRequest request, HttpServletResponse response, String targetUrl, boolean http10Compatible)
+            throws IOException {
+
+        // Do nothing, effectively disabling the redirect
+    }
+}
+In the above code, we create a custom class CustomRedirectView that extends RedirectView. We override the sendRedirect method, which is responsible for performing the actual redirect.
+
+By doing nothing inside this method, we effectively disable the redirect. The request will proceed as if it were a normal request, without any redirection taking place.
+
+To use this custom redirect view in your Spring Boot application, you can simply create an instance of CustomRedirectView instead of using RedirectView. Here's an example controller method that returns the custom redirect view:
+
+java
+Copy code
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+public class MyController {
+    
+    @GetMapping("/redirect")
+    public ModelAndView redirect() {
+        CustomRedirectView customRedirectView = new CustomRedirectView("/target");
+        return new ModelAndView(customRedirectView);
+    }
+}
+In the above example, when the /redirect endpoint is accessed, the redirect() method is executed. It creates an instance of CustomRedirectView with the target URL "/target" and returns a ModelAndView with this custom redirect view.
+
+Now, when a user accesses /redirect, instead of being redirected to /target, the request will continue as a normal request without any redirection occurring.
