@@ -380,3 +380,46 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(nil)
 }
+
+
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+)
+
+func main() {
+	url := "https://api.example.com/post-endpoint"
+	payload := []byte(`{"key1":"value1","key2":"value2"}`)
+
+	// Create a new HTTP request with POST method and request body
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Set request headers, if needed
+	req.Header.Set("Content-Type", "application/json")
+
+	// Create a new HTTP client and send the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Print the response status code and body
+	fmt.Println("Response Status:", resp.Status)
+	fmt.Println("Response Body:", string(respBody))
+}
