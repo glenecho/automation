@@ -238,3 +238,43 @@ public class MyController {
 In the above example, when the /redirect endpoint is accessed, the redirect() method is executed. It creates an instance of CustomRedirectView with the target URL "/target" and returns a ModelAndView with this custom redirect view.
 
 Now, when a user accesses /redirect, instead of being redirected to /target, the request will continue as a normal request without any redirection occurring.
+
+
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+func main() {
+	// Set connection options
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+
+	// Connect to MongoDB
+	client, err := mongo.Connect(context.Background(), clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Ping the MongoDB server to verify the connection
+	err = client.Ping(context.Background(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB!")
+
+	// Disconnect from MongoDB
+	err = client.Disconnect(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Disconnected from MongoDB!")
+}
