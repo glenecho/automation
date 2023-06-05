@@ -423,3 +423,31 @@ func main() {
 	fmt.Println("Response Status:", resp.Status)
 	fmt.Println("Response Body:", string(respBody))
 }
+
+<plugins>
+  <!-- Other plugins -->
+
+  <plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>exec-maven-plugin</artifactId>
+    <version>3.0.0</version>
+    <executions>
+      <execution>
+        <id>build-go</id>
+        <phase>compile</phase>
+        <goals>
+          <goal>exec</goal>
+        </goals>
+        <configuration>
+          <executable>go</executable>
+          <arguments>
+            <argument>build</argument>
+            <!-- Add any additional arguments as needed -->
+          </arguments>
+        </configuration>
+      </execution>
+    </executions>
+  </plugin>
+
+  <!-- Other plugins -->
+</plugins>
