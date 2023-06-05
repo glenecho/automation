@@ -244,7 +244,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"crypto/tls"
 	"log"
 	"time"
 
@@ -255,6 +255,14 @@ import (
 func main() {
 	// Set connection options
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+
+	// Configure TLS
+	tlsConfig := &tls.Config{
+		InsecureSkipVerify: true, // Skip certificate verification (for testing purposes only)
+		// Add any other TLS configuration as needed
+	}
+
+	clientOptions.SetTLSConfig(tlsConfig)
 
 	// Connect to MongoDB
 	client, err := mongo.Connect(context.Background(), clientOptions)
@@ -268,7 +276,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Connected to MongoDB!")
+	log.Println("Connected to MongoDB!")
 
 	// Disconnect from MongoDB
 	err = client.Disconnect(context.Background())
@@ -276,5 +284,99 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Disconnected from MongoDB!")
+	log.Println("Disconnected from MongoDB!")
+}
+
+package main
+
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+
+	"github.com/gorilla/mux"
+)
+
+type User struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+}
+
+var users []User
+
+func main() {
+	// Initialize the router
+	router := mux.NewRouter()
+
+	// Define API endpoints
+	router.HandleFunc("/users", GetUsers).Methods("GET")
+	router.HandleFunc("/users/{id}", GetUser).Methods("GET")
+	router.HandleFunc("/users", CreateUser).Methods("POST")
+	router.HandleFunc("/users/{id}", UpdateUser).Methods("PUT")
+	router.HandleFunc("/users/{id}", DeleteUser).Methods("DELETE")
+
+	// Start the server
+	log.Println("Server started on localhost:8000")
+	log.Fatal(http.ListenAndServe(":8000", router))
+}
+
+// GetUsers returns all users
+func GetUsers(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(users)
+}
+
+// GetUser returns a specific user by ID
+func GetUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for _, user := range users {
+		if user.ID == params["id"] {
+			json.NewEncoder(w).Encode(user)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(nil)
+}
+
+// CreateUser creates a new user
+func CreateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var user User
+	_ = json.NewDecoder(r.Body).Decode(&user)
+	users = append(users, user)
+	json.NewEncoder(w).Encode(user)
+}
+
+// UpdateUser updates an existing user
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, user := range users {
+		if user.ID == params["id"] {
+			users[index] = User{
+				ID:       params["id"],
+				Username: user.Username,
+				Email:    user.Email,
+			}
+			json.NewEncoder(w).Encode(users[index])
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(nil)
+}
+
+// DeleteUser deletes a user
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r)
+	for index, user := range users {
+		if user.ID == params["id"] {
+			users = append(users[:index], users[index+1:]...)
+			json.NewEncoder(w).Encode(user)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(nil)
 }
